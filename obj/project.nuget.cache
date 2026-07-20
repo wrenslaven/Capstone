@@ -1,10 +1,10 @@
 {
   "version": 2,
-  "dgSpecHash": "BzV27GhDkbE=",
+  "dgSpecHash": "GO4bTsYDyag=",
   "success": true,
-  "projectFilePath": "C:\\Users\\natha\\Documents\\projects\\Capstone\\Capstone\\Capstone.csproj",
+  "projectFilePath": "C:\\Users\\wrens\\Documents\\Projects\\Capstone\\Capstone.csproj",
   "expectedPackageFiles": [
-    "C:\\Users\\natha\\.nuget\\packages\\microsoft.aspnetcore.app.internal.assets\\10.0.9\\microsoft.aspnetcore.app.internal.assets.10.0.9.nupkg.sha512"
+    "C:\\Users\\wrens\\.nuget\\packages\\microsoft.aspnetcore.app.internal.assets\\10.0.3\\microsoft.aspnetcore.app.internal.assets.10.0.3.nupkg.sha512"
   ],
   "logs": []
 }

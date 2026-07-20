@@ -3,135 +3,199 @@
 @page "/"
 @rendermode InteractiveServer
 
-<PageTitle>Home</PageTitle>
+<PageTitle>CFBGuessr</PageTitle>
 
+<div class="container text-center my-4" style="max-width: 700px;">
 
-<div class="d-flex justify-content-center align-items-center" style="height: 75px;">
-    <h1><c>CFBGuessr</c></h1>
-</div>
+    <div class="mb-4">
+        <h1 class="fw-bold">CFBGuessr</h1>
+        <div class="d-flex justify-content-center gap-4 text-muted">
+            <h4>Score: @total_score</h4>
+            <h4>Guesses: @guesses_remaining</h4>
+        </div>
+    </div>
 
-<div class="d-flex justify-content-center align-items-center" style="height: 75px;">
-    <div class="mt-4">
-        <h4>Submit Your Guess</h4>
+    <datalist id="team-suggestions">
+        @foreach (string team in teamNames)
+        {
+            <option value="@team" />
+        }
+    </datalist>
+
+    @if (!playerWon && guesses_remaining > 0){<div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <h5 class="card-title">Guess a Division 1 FBS Team</h5>
+            
+            <form @onsubmit="SubmitGuess">
+                <div class="input-group my-3 mx-auto" style="max-width: 400px;">
+                   <input type="text" 
+                    class="form-control" 
+                    placeholder="Enter a team name" 
+                    @bind="playerGuess" 
+                    list="team-suggestions" />
+                    <button class="btn btn-success" type="submit">Guess</button>
+                </div>
+            </form>
+            
+            @if (!string.IsNullOrEmpty(feedbackMessage))
+            {
+                <p class="text-danger fw-bold mb-0">@feedbackMessage</p>
+            }
+        </div>
+    </div>}
+
+    <div class="d-flex flex-column gap-3">
         
-        <!-- Bootstrap Input Group -->
-        <div class="input-group mb-3" style="max-width: 400px;">
-            <input type="text" class="form-control" placeholder="Enter team name..." @bind="playerGuess" />
-            <button class="btn btn-success" type="button" @onclick="SubmitGuess">Guess</button>
+        <div>
+            @if (schedule_revealed | all_revealed)
+            {
+                <table class="table table-bordered table-sm text-center align-middle mx-auto shadow-sm">
+                    <thead class="table-dark">
+                        <tr><th colspan="4">Weekly Scores</th></tr>
+                    </thead>
+                    <tbody>
+                        @for (int r = 0; r < 3; r++)
+                        {
+                            <tr>
+                                @for (int c = 0; c < 4; c++)
+                                {
+                                    int index = (r * 4) + c;
+                                    <td>
+                                        @if (index < allPuzzles[puzzleIndex].weekly_scores.Length)
+                                        {
+                                            <span class="text-muted" style="font-size: 0.8em;">Week @(index + 1)</span><br />
+                                            <strong>@allPuzzles[puzzleIndex].weekly_scores[index]</strong>
+                                        }
+                                    </td>
+                                }
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+            else
+            {
+                <button class="btn btn-outline-primary w-50" @onclick="RevealSchedule">Reveal Weekly Scores (-50 pts)</button>
+            }
         </div>
 
-        <!-- Optional: Display feedback based on the guess -->
-        @if (!string.IsNullOrEmpty(feedbackMessage))
-        {
-            <p class="text-danger fw-bold">@feedbackMessage</p>
-        }
-    </div>
-</div>
-
-
-<div class="d-flex justify-content-center align-items-center" style="height: 250px;">
-    @if (schedule_revealed | all_revealed){
-        <div class="mt-4" style="max-width: 600px;">
-    <table class="table table-bordered table-sm text-center align-middle">
-        <thead class="table-dark">
-            <tr><th colspan="4">Weekly Scores</th></tr>
-        </thead>
-        <tbody>
-            @for (int r = 0; r < 3; r++)
+        <div>
+            @if (coach_revealed | all_revealed)
             {
-                <tr>
-                    @for (int c = 0; c < 4; c++)
-                    {
-                        int index = (r * 4) + c;
-                        
-                        <td>
-                            @if (index < allPuzzles[puzzleIndex].weekly_scores.Length)
-                            {
-                                <span class="text-muted" style="font-size: 0.8em;">Week @(index + 1)</span><br />
-                                <strong>@allPuzzles[puzzleIndex].weekly_scores[index]</strong>
-                            }
-                        </td>
-                    }
-                </tr>
+                <h5 class="p-2 border rounded mx-auto" style="max-width: 400px;">
+                    <strong>Coach:</strong> @allPuzzles[puzzleIndex].head_coach
+                </h5>
             }
-        </tbody>
-    </table>
-    </div>
-        }
-    else {<div><button class="btn btn-primary m-2" @onclick="RevealSchedule">Reveal Week-by-Week Scores (-50 pts)</button></div>}
-</div>
-
-<div class="d-flex justify-content-center align-items-center" style="height: 75px;">
-    @if (coach_revealed | all_revealed){<div><p><strong>@allPuzzles[puzzleIndex].head_coach</strong></p></div>}
-    else {<div><button class="btn btn-primary m-2" @onclick="RevealCoach">Reveal Head Coach (-100 pts)</button></div>}
-</div>
-
-<div class="d-flex justify-content-center align-items-center" style="height: 200px;">
-     @if (rankings_revealed | all_revealed){
-        {
-        <div class="mt-4" style="max-width: 600px;">
-    <table class="table table-bordered table-sm text-center align-middle">
-        <thead class="table-dark">
-            <tr><th colspan="6">Weekly Rankings (AP Poll)</th></tr>
-        </thead>
-        <tbody>
-            @for (int r = 0; r < 3; r++)
+            else
             {
-                <tr>
-                    @for (int c = 0; c < 6; c++)
-                    {
-                        int index = (r * 6) + c;
-                        
-                        <td>
-                            @if (index < allPuzzles[puzzleIndex].weekly_rankings.Length)
-                            {
-                                <span class="text-muted" style="font-size: 0.8em;">Week @(index + 1)</span><br />
-                                int ranking = @allPuzzles[puzzleIndex].weekly_rankings[index];
-                                if (ranking == -1){
-                                    <strong>Unranked</strong>
-                                }
-                                else{
-                                    <strong>@ranking</strong>
-                                }
-                            }
-                        </td>
-                    }
-                </tr>
+                <button class="btn btn-outline-primary w-50" @onclick="RevealCoach">Reveal Head Coach (-100 pts)</button>
             }
-        </tbody>
-    </table>
+        </div>
+
+        <div>
+            @if (rankings_revealed | all_revealed)
+            {
+                <table class="table table-bordered table-sm text-center align-middle mx-auto shadow-sm">
+                    <thead class="table-dark">
+                        <tr><th colspan="6">Weekly Rankings (AP Poll)</th></tr>
+                    </thead>
+                    <tbody>
+                        @for (int r = 0; r < 3; r++)
+                        {
+                            <tr>
+                                @for (int c = 0; c < 6; c++)
+                                {
+                                    int index = (r * 6) + c;
+                                    <td>
+                                        @if (index < allPuzzles[puzzleIndex].weekly_rankings.Length)
+                                        {
+                                            <span class="text-muted" style="font-size: 0.8em;">Week @(index + 1)</span><br />
+                                            int ranking = @allPuzzles[puzzleIndex].weekly_rankings[index];
+                                            if (ranking == -1)
+                                            {
+                                                <strong>Unranked</strong>
+                                            }
+                                            else
+                                            {
+                                                <strong>@ranking</strong>
+                                            }
+                                        }
+                                    </td>
+                                }
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+            else
+            {
+                <button class="btn btn-outline-primary w-50" @onclick="RevealRankings">Reveal Weekly Rankings (-50 pts)</button>
+            }
+        </div>
+
+        <!-- Conference -->
+        <div>
+            @if (conference_revealed | all_revealed)
+            {
+                <h5 class="p-2 border rounded mx-auto" style="max-width: 400px;">
+                    <strong>Conference:</strong> @allPuzzles[puzzleIndex].conference
+                </h5>
+            }
+            else
+            {
+                <button class="btn btn-outline-primary w-50" @onclick="RevealConference">Reveal Conference (-100 pts)</button>
+            }
+        </div>
+
+        <!-- Reveal All -->
+        <div class="mt-3">
+            @if (all_revealed)
+            {
+                <div class="d-flex flex-wrap justify-content-center gap-3 p-3 border rounded">
+                    <h5 class="w-100 text-center mb-0">Bonus Stats</h5>
+                    <span><strong>Mascot:</strong> @allPuzzles[puzzleIndex].reveal_all[0]</span>
+                    <span><strong>Rival(s):</strong> @allPuzzles[puzzleIndex].reveal_all[1]</span>
+                    <span><strong>Stadium:</strong> @allPuzzles[puzzleIndex].reveal_all[2]</span>
+                </div>
+            }
+            else
+            {
+                <button class="btn btn-danger w-50 shadow-sm" @onclick="RevealAll">Reveal All (& Mascot, Rivals, Stadium)</button>
+            }
+        </div>
     </div>
-        }
-    }
-    else {<div><button class="btn btn-primary m-2" @onclick="RevealRankings">Reveal Week-by-Week Rankings (-50 pts)</button></div>}
+
+    @if (showResults){
+        <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.75);">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content shadow-lg">
+                
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold">
+                        @(playerWon ? "You Win!" : "Game Over")
+                    </h5>
+                    <button type="button" class="btn-close" @onclick="CloseResults"></button>
+                </div>
+                
+                <div class="modal-body text-center">
+                    <p class="fs-5">The team was:</p>
+                    <h2 class="fw-bold text-success">@allPuzzles[puzzleIndex].answer (@allPuzzles[puzzleIndex].answer_year)</h2>
+                    
+                    <hr />
+                    
+                    <p><strong>Final Score:</strong> @total_score</p>
+                    <p><strong>Guesses Used:</strong> @(10 - guesses_remaining) / 10</p>
+                </div>
+                
+                <div class="modal-footer justify-content-center">
+                    <button class="btn btn-primary" @onclick="CloseResults">Review Team Stats</button>
+                </div>
+                
+            </div>
+        </div>
+    </div>}
 </div>
 
-<div class="d-flex justify-content-center align-items-center" style="height: 75px;">
-    @if (conference_revealed | all_revealed){<div><p><strong>@allPuzzles[puzzleIndex].conference</strong></p></div>}
-    else {<div><button class="btn btn-primary m-2" @onclick="RevealConference"> Reveal Conference (-100 pts)</button></div>}
-</div>
-
-<div class="d-flex justify-content-center align-items-center" style="height: 75px;">
-        @if (all_revealed){<p><strong>Mascot: @allPuzzles[puzzleIndex].reveal_all[0]</strong></p>
-                        <p><strong>Rival(s): @allPuzzles[puzzleIndex].reveal_all[1]</strong></p>
-                        <p><strong>Stadium: @allPuzzles[puzzleIndex].reveal_all[2]</strong></p>}
-    else {<div><button class="btn btn-danger m-2" @onclick="RevealAll">Reveal All (+ Mascot, Rivals, and Stadium)</button></div>}
-</div>
-
-<div class="container">
-    
-
-    
-    
-   
-    
-    
-    
-
-</div>
-
-<h2>Score: @total_score</h2>
-<h3>Guesses Remaining: @guesses_remaining</h3>
 
 @code{
      private bool schedule_revealed = false;
@@ -164,6 +228,8 @@
     private int guesses_remaining = 10;
     private string playerGuess = "";
     private string feedbackMessage = "";
+    private bool showResults = false;
+    private bool playerWon = false;
     
     private void SubmitGuess()
     {
@@ -175,19 +241,34 @@
         if (playerGuess.Equals(allPuzzles[puzzleIndex].answer, StringComparison.OrdinalIgnoreCase)) 
         {
             feedbackMessage = "Correct!";
+            guesses_remaining -= 1;
+            all_revealed = true;
+            showResults = true;
+            playerWon = true;
         }
         else
         {
             feedbackMessage = "Incorrect";
             playerGuess = "";
             guesses_remaining -= 1;
+            if (guesses_remaining <= 0)
+            {
+                all_revealed = true;
+                showResults = true;
+                playerWon = false;
+            }
         }
         Console.WriteLine(allPuzzles[puzzleIndex].head_coach);
     }
-    int puzzleIndex = 0;
+    int puzzleIndex = 1;
 
     public record PuzzleData(string answer, int answer_year, string[] weekly_scores, string head_coach, int[] weekly_rankings, string conference, string[] reveal_all);
     List<PuzzleData> allPuzzles = JsonSerializer.Deserialize<List<PuzzleData>>(File.ReadAllText("wwwroot/teamlist.json"))!;
     
+    string[] teamNames = File.ReadAllLines("wwwroot/teams.txt");
+    
+    private void CloseResults(){
+        showResults = false;
+    }
 }
 

@@ -7,5 +7,14 @@
         "weekly_rankings": [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1],
         "conference": "Big Ten",
         "reveal_all": ["Badgers", "Minnesota", "Camp Randall Stadium"]
+    },
+    {
+        "answer" : "Michigan",
+        "answer_year": 2025,
+        "weekly_scores": ["34-17 (W)", "13-24 (L)", "63-3 (W)", "30-27 (W)", "24-10 (W)", "13-31 (L)", "24-7 (W)", "31-20 (W)", "21-16 (W)", "24-22 (W)", "45-20 (W)", "9-27 (L)"],
+        "head_coach": "Sherrone Moore/Biff Poggi",
+        "weekly_rankings": [14, 15, 23, 21, 19, 20, 15, -1, 25, 21, 21, 18, 18, 15, 18, 18, 21],
+        "conference": "Big Ten",
+        "reveal_all": ["Wolverines", "Michigan State, Ohio State, Notre Dame", "Michigan Stadium"]
     }
 ]
